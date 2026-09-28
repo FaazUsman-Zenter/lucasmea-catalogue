@@ -16,9 +16,6 @@ body{
 .wrap{max-width:1200px; margin:0 auto; padding:0 24px;}
 h1,h2,h3{font-family:var(--lucas-font); color:var(--lucas-green); margin:0;}
 
-.hero{background:var(--lucas-grey-light); padding:56px 0 60px; margin-top:19px;} /* 19px ≈ 5mm isolation area below the logo */
-.hero h1{font-weight:700; font-size:clamp(2rem,4.5vw,3rem); line-height:1.08; letter-spacing:-0.01em; margin-bottom:14px;}
-.hero p{margin:0 0 26px; max-width:640px; font-size:1.1rem;}
 .btn{
   display:inline-flex; align-items:center; gap:8px; background:var(--lucas-green); color:#fff;
   font-family:var(--lucas-font); font-weight:600; font-size:1rem; text-decoration:none;
@@ -28,7 +25,7 @@ h1,h2,h3{font-family:var(--lucas-font); color:var(--lucas-green); margin:0;}
 .btn:focus-visible{outline:3px solid var(--lucas-black); outline-offset:2px;}
 
 .range{padding:52px 0 16px;}
-.range h2{font-weight:600; font-size:1.7rem; margin-bottom:6px;}
+.range h2, .range .range-title{font-weight:600; font-size:1.7rem; margin-bottom:6px;}
 .range .lead{margin:0 0 28px;}
 .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px;}
 
@@ -74,7 +71,6 @@ footer .bar{height:24px; background:var(--lucas-green);}
 @media (max-width:600px){
   body{font-size:16px;}
   .wrap{padding:0 16px;}
-  .hero{padding:40px 0 44px;}
   .range{padding:40px 0 8px;}
   .how{grid-template-columns:1fr;}
   .bar-nav a{padding:6px 8px 4px; font-size:0.85rem;}
@@ -85,24 +81,16 @@ footer .bar{height:24px; background:var(--lucas-green);}
 </head>
 <body>
 <header class="lucas-bar">
-  <img class="lucas-logo" src="assets/lucas-logo.png" alt="Lucas">
+  <a href="/" aria-label="Lucas online catalogues home"><img class="lucas-logo" src="assets/lucas-logo.png" alt="Lucas"></a>
   <nav class="bar-nav" aria-label="Main">
     <a href="cart/#contact">Contact us</a>
     <a href="cart/">Cart<b data-cart-count>0</b></a>
   </nav>
 </header>
 
-<section class="hero">
-  <div class="wrap">
-    <h1>Find the right part, fast.</h1>
-    <p>Search our aftermarket ranges by Lucas part number, vehicle, OE number or cross-reference, with full dimensions and fitment details for every part.</p>
-    <a class="btn" href="gas-springs/">Search gas springs &rarr;</a>
-  </div>
-</section>
-
 <main class="wrap">
   <section class="range">
-    <h2>Our product range</h2>
+    <h1 class="range-title">Our product range</h1>
     <p class="lead">Choose a catalogue to start searching. More ranges are on the way.</p>
     <div class="grid">
 

@@ -210,7 +210,20 @@
     api.onChange(function () { rows().forEach(function (tr) { if (api.has(tr.__lcNo, CATALOGUE)) delete selected[tr.__lcNo]; paint(tr); }); refreshBar(); });
   }
 
+  // Make the brand logo in a catalogue's header link back to the home page
+  function linkLogoHome() {
+    var img = document.querySelector('header img');
+    if (!img || img.closest('a')) return;
+    var a = document.createElement('a');
+    a.href = '/';
+    a.setAttribute('aria-label', 'Lucas online catalogues home');
+    a.style.display = 'inline-block';
+    img.parentNode.insertBefore(a, img);
+    a.appendChild(img);
+  }
+
   function start() {
+    if (CATALOGUE) linkLogoHome();
     updateCounts(load());
     if (CATALOGUE) enhanceCatalogue();
     updateCounts(load());
