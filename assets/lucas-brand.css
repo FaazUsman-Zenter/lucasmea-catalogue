@@ -1,0 +1,32 @@
+/* Lucas brand layer — per Lucas Brand Standards (July 2025)
+   Primary: Pantone 355 / #00954C · Secondary: black (RGB 35/31/32)
+   Typeface: League Spartan Regular / SemiBold / Bold, self-hosted (no Google servers) */
+
+@font-face{font-family:"League Spartan";src:url("fonts/league-spartan-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"League Spartan";src:url("fonts/league-spartan-latin-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap;}
+@font-face{font-family:"League Spartan";src:url("fonts/league-spartan-latin-700-normal.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap;}
+
+:root{
+  --lucas-green:#00954C;
+  --lucas-green-dark:#007a3e;
+  --lucas-green-10:#e6f4ed;
+  --lucas-green-20:#cceadb;
+  --lucas-black:#231F20;
+  --lucas-grey:#6d6e71;
+  --lucas-grey-light:#ededed;
+  --lucas-border:#dcdcdc;
+  --lucas-font:"League Spartan","Noto Sans","Noto Sans Arabic",Arial,sans-serif;
+}
+
+/* Brand bar: logo aligned top-left, bar extends to the right */
+.lucas-bar{
+  background:var(--lucas-green); color:#fff; height:64px;
+  display:flex; align-items:center; gap:16px; padding:0 24px 0 0;
+}
+.lucas-bar .lucas-logo{height:64px; width:auto; display:block; flex-shrink:0;}
+.lucas-bar .bar-title{font-family:var(--lucas-font); font-weight:600; font-size:1.05rem; letter-spacing:0.01em; text-transform:uppercase; margin-left:auto; white-space:nowrap;}
+@media (max-width:600px){
+  .lucas-bar{height:48px; padding-right:16px;}
+  .lucas-bar .lucas-logo{height:48px;}
+  .lucas-bar .bar-title{font-size:0.85rem;}
+}

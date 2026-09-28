@@ -5,108 +5,83 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lucas Online Catalogues</title>
 <meta name="description" content="Search Lucas aftermarket parts by part number, vehicle, OE number or cross-reference. Gas springs available now; filters and wiper blades coming soon.">
-<link rel="icon" type="image/png" href="assets/lucas-logo.png">
+<link rel="icon" type="image/png" href="assets/icon-gas-springs.png">
+<link rel="stylesheet" href="assets/lucas-brand.css">
 <style>
-:root{
-  --bg:#f4f8f5; --card:#ffffff; --text:#16181d; --text-dim:#5b6270;
-  --border:#dde7e0; --accent:#1c8a4b; --accent-dim:#e5f5eb; --header-bg:#0f5c30;
-  --muted-bg:#eef4ef; --shadow:0 1px 2px rgba(16,18,22,0.06), 0 1px 8px rgba(16,18,22,0.04);
-  --shadow-hover:0 6px 24px rgba(16,18,22,0.12);
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#111317; --card:#1a1d23; --text:#eef0f3; --text-dim:#9aa0ab;
-    --border:#2b2f38; --accent:#3ecb80; --accent-dim:#123420; --header-bg:#08331b;
-    --muted-bg:#20232b; --shadow:0 1px 2px rgba(0,0,0,0.4), 0 1px 8px rgba(0,0,0,0.3);
-    --shadow-hover:0 6px 24px rgba(0,0,0,0.5);
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#111317; --card:#1a1d23; --text:#eef0f3; --text-dim:#9aa0ab;
-  --border:#2b2f38; --accent:#3ecb80; --accent-dim:#123420; --header-bg:#08331b;
-  --muted-bg:#20232b; --shadow:0 1px 2px rgba(0,0,0,0.4), 0 1px 8px rgba(0,0,0,0.3);
-  --shadow-hover:0 6px 24px rgba(0,0,0,0.5);
-}
 *{box-sizing:border-box;}
 body{
-  margin:0; background:var(--bg); color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  line-height:1.5;
+  margin:0; background:#fff; color:var(--lucas-grey);
+  font-family:var(--lucas-font); font-size:17px; line-height:1.5;
 }
-header{
-  background:var(--header-bg); color:#fff; padding:16px 24px;
-  display:flex; align-items:center; gap:16px; box-shadow:var(--shadow);
-}
-header img{height:32px; width:auto; display:block; filter:drop-shadow(0 1px 2px rgba(0,0,0,0.35));}
-header .brand{font-weight:700; font-size:1.05rem; letter-spacing:-0.01em;}
 .wrap{max-width:1200px; margin:0 auto; padding:0 24px;}
+h1,h2,h3{font-family:var(--lucas-font); color:var(--lucas-green); margin:0;}
 
-.hero{
-  background:linear-gradient(135deg,#0e3b20 0%,#1c8a4b 55%,#0e3b20 100%);
-  color:#fff; padding:64px 0 72px;
+.hero{background:var(--lucas-grey-light); padding:56px 0 60px; margin-top:19px;} /* 19px ≈ 5mm isolation area below the logo */
+.hero h1{font-weight:700; font-size:clamp(2rem,4.5vw,3rem); line-height:1.08; letter-spacing:-0.01em; margin-bottom:14px;}
+.hero p{margin:0 0 26px; max-width:640px; font-size:1.1rem;}
+.btn{
+  display:inline-flex; align-items:center; gap:8px; background:var(--lucas-green); color:#fff;
+  font-family:var(--lucas-font); font-weight:600; font-size:1rem; text-decoration:none;
+  padding:12px 22px 10px; border-radius:4px; transition:background .15s;
 }
-.hero h1{margin:0 0 12px; font-size:clamp(1.8rem,4vw,2.6rem); line-height:1.15; letter-spacing:-0.02em;}
-.hero p{margin:0; max-width:620px; color:#d9ecdf; font-size:1.05rem;}
+.btn:hover{background:var(--lucas-green-dark);}
+.btn:focus-visible{outline:3px solid var(--lucas-black); outline-offset:2px;}
 
-.range{padding:48px 0 24px;}
-.range h2{margin:0 0 6px; font-size:1.4rem; letter-spacing:-0.01em;}
-.range .lead{margin:0 0 24px; color:var(--text-dim);}
-.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;}
+.range{padding:52px 0 16px;}
+.range h2{font-weight:600; font-size:1.7rem; margin-bottom:6px;}
+.range .lead{margin:0 0 28px;}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px;}
 
 .card{
-  background:var(--card); border:1px solid var(--border); border-radius:14px;
-  box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column;
-  transition:box-shadow .15s, transform .15s;
+  background:#fff; border:1px solid var(--lucas-border); border-top:4px solid var(--lucas-green);
+  display:flex; flex-direction:column; transition:box-shadow .15s;
 }
-.card.live:hover{box-shadow:var(--shadow-hover); transform:translateY(-2px);}
-.card .media{
-  height:190px; display:flex; align-items:center; justify-content:center;
-  background:linear-gradient(135deg,#0e3b20 0%,#1c8a4b 100%);
-}
-.card .media img{height:100%; width:auto; display:block;}
-.card .media svg{width:84px; height:84px; stroke:#ffffff; opacity:0.9;}
-.card.soon .media{background:var(--muted-bg);}
-.card.soon .media svg{stroke:var(--text-dim); opacity:0.7;}
-.card .body{padding:20px 20px 22px; display:flex; flex-direction:column; flex:1;}
-.card h3{margin:0 0 6px; font-size:1.2rem;}
-.card .desc{margin:0 0 14px; color:var(--text-dim); font-size:0.93rem; flex:1;}
-.stats{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
-.stat{background:var(--accent-dim); color:var(--accent); font-weight:700; font-size:0.78rem; padding:3px 10px; border-radius:20px;}
-.btn{
-  display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  background:var(--accent); color:#fff; text-decoration:none; font-weight:600;
-  padding:11px 18px; border-radius:8px; font-size:0.95rem;
-}
-.btn:hover{opacity:0.9;}
-.btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+.card.live:hover{box-shadow:0 8px 24px rgba(35,31,32,0.10);}
+.card .media{height:200px; display:flex; align-items:center; justify-content:center; border-bottom:1px solid var(--lucas-border);}
+.card .media img{height:170px; width:170px; display:block;}
+.card.soon{border-top-color:var(--lucas-border);}
+.card.soon .media img{opacity:0.4;}
+.card .body{padding:22px 22px 24px; display:flex; flex-direction:column; flex:1;}
+.card h3{font-weight:600; font-size:1.35rem; margin-bottom:6px;}
+.card.soon h3{color:var(--lucas-black);}
+.card .desc{margin:0 0 16px; flex:1;}
+.stats{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;}
+.stat{background:var(--lucas-green-10); color:var(--lucas-green-dark); font-weight:600; font-size:0.85rem; padding:5px 12px 3px; border-radius:20px;}
+.card .btn{align-self:flex-start;}
 .badge-soon{
-  display:inline-block; align-self:flex-start; background:var(--muted-bg); color:var(--text-dim);
-  border:1px solid var(--border); font-weight:600; font-size:0.85rem; padding:9px 16px; border-radius:8px;
+  align-self:flex-start; background:var(--lucas-grey-light); color:var(--lucas-grey);
+  font-weight:600; font-size:0.9rem; padding:10px 16px 8px; border-radius:4px; text-transform:uppercase; letter-spacing:0.03em;
 }
 
-footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0 32px; color:var(--text-dim); font-size:0.85rem;}
-footer .row{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;}
-footer a{color:var(--accent); text-decoration:none; font-weight:600;}
+footer{margin-top:56px;}
+footer .rule{height:6px; background:var(--lucas-green);}
+footer .inner{display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; padding:28px 24px 32px; max-width:1200px; margin:0 auto; font-size:0.9rem;}
+footer .notes p{margin:0 0 6px;}
+footer a{color:var(--lucas-green); text-decoration:none; font-weight:600;}
 footer a:hover{text-decoration:underline;}
+footer .strapline{font-weight:700; color:var(--lucas-green); font-size:1.25rem; letter-spacing:0.01em; white-space:nowrap;}
+footer .bar{height:24px; background:var(--lucas-green);}
 
 @media (max-width:600px){
-  header{padding:14px 16px;}
+  body{font-size:16px;}
   .wrap{padding:0 16px;}
-  .hero{padding:44px 0 52px;}
-  .range{padding:36px 0 16px;}
+  .hero{padding:40px 0 44px;}
+  .range{padding:40px 0 8px;}
+  footer .inner{padding:24px 16px 28px;}
 }
 </style>
 </head>
 <body>
-<header>
-  <img src="assets/lucas-logo.png" alt="Lucas logo">
-  <span class="brand">Online Catalogues</span>
+<header class="lucas-bar">
+  <img class="lucas-logo" src="assets/lucas-logo.png" alt="Lucas">
+  <span class="bar-title">Online Catalogues</span>
 </header>
 
 <section class="hero">
   <div class="wrap">
-    <h1>Find the right Lucas part, fast.</h1>
-    <p>Search our aftermarket ranges by Lucas part number, vehicle, OE number or competitor cross-reference, with full dimensions and fitment details.</p>
+    <h1>Find the right part, fast.</h1>
+    <p>Search our aftermarket ranges by Lucas part number, vehicle, OE number or cross-reference, with full dimensions and fitment details for every part.</p>
+    <a class="btn" href="gas-springs/">Search gas springs &rarr;</a>
   </div>
 </section>
 
@@ -117,23 +92,17 @@ footer a:hover{text-decoration:underline;}
     <div class="grid">
 
       <article class="card live">
-        <div class="media"><img src="assets/gas-springs.jpg" alt="Lucas gas springs"></div>
+        <div class="media"><img src="assets/icon-gas-springs.png" alt=""></div>
         <div class="body">
           <h3>Gas Springs</h3>
-          <p class="desc">Boot, bonnet, tailgate and hatch gas springs engineered to OE specification.</p>
+          <p class="desc">Boot, bonnet, tailgate and hatch gas springs, engineered to OE specification.</p>
           <div class="stats"><span class="stat">3,615 part numbers</span><span class="stat">146 vehicle makes</span></div>
           <a class="btn" href="gas-springs/">Open catalogue &rarr;</a>
         </div>
       </article>
 
       <article class="card soon">
-        <div class="media" aria-hidden="true">
-          <svg viewBox="0 0 64 64" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <ellipse cx="32" cy="14" rx="20" ry="6"/>
-            <path d="M12 14v36c0 3.3 9 6 20 6s20-2.7 20-6V14"/>
-            <path d="M20 22v26M26 23v27M32 23v27M38 23v27M44 22v26"/>
-          </svg>
-        </div>
+        <div class="media"><img src="assets/icon-filters.png" alt=""></div>
         <div class="body">
           <h3>Filters</h3>
           <p class="desc">Oil, air, fuel and cabin filters for the vehicles that matter in your market.</p>
@@ -142,14 +111,7 @@ footer a:hover{text-decoration:underline;}
       </article>
 
       <article class="card soon">
-        <div class="media" aria-hidden="true">
-          <svg viewBox="0 0 64 64" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M8 44c6-18 20-30 40-34"/>
-            <path d="M14 46c6-17 19-28 37-31"/>
-            <path d="M32 54 46 22"/>
-            <circle cx="32" cy="54" r="3"/>
-          </svg>
-        </div>
+        <div class="media"><img src="assets/icon-wiper-blades.png" alt=""></div>
         <div class="body">
           <h3>Wiper Blades</h3>
           <p class="desc">Conventional, flat and hybrid wiper blades with adaptor and size guidance.</p>
@@ -162,10 +124,15 @@ footer a:hover{text-decoration:underline;}
 </main>
 
 <footer>
-  <div class="wrap row">
-    <span>Reference only. Always confirm dimensions against the physical part before ordering.</span>
-    <span>Enquiries: <a href="mailto:info@lucasmeaparts.com">info@lucasmeaparts.com</a></span>
+  <div class="rule"></div>
+  <div class="inner">
+    <div class="notes">
+      <p>Reference only. Always confirm dimensions against the physical part before ordering.</p>
+      <p>Enquiries: <a href="mailto:info@lucasmeaparts.com">info@lucasmeaparts.com</a></p>
+    </div>
+    <div class="strapline">OUR RANGE GOES FURTHER.</div>
   </div>
+  <div class="bar"></div>
 </footer>
 </body>
 </html>

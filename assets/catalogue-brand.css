@@ -1,0 +1,55 @@
+/* Brand overrides for catalogue pages (applied on top of each catalogue's own styles).
+   Requires <html data-theme="light"> and lucas-brand.css loaded first. */
+:root{
+  --bg:#ffffff; --card:#ffffff; --text:#231F20; --text-dim:#6d6e71;
+  --border:#dcdcdc; --accent:#00954C; --accent-dim:#e6f4ed; --header-bg:#00954C;
+  --header-text:#ffffff; --row-hover:#f3faf6; --input-bg:#ffffff; --tag-bg:#ededed;
+  --shadow:none;
+}
+body{font-family:var(--lucas-font);}
+
+/* Brand bar header: logo flush top-left */
+header{
+  background:var(--lucas-green) !important; box-shadow:none !important;
+  padding:0 24px 0 0 !important; min-height:64px; position:sticky; top:0;
+}
+header .logo-mark{height:64px !important; width:auto; filter:none !important; align-self:flex-start;}
+header h1{font-family:var(--lucas-font); font-weight:600; font-size:1.3rem !important; line-height:1.1;}
+header .sub{color:#e6f4ed !important; font-size:0.9rem !important;}
+header .home-link{
+  margin-left:auto; color:#fff !important; text-decoration:none; font-family:var(--lucas-font);
+  font-weight:600; font-size:0.9rem; border:1px solid rgba(255,255,255,0.6); padding:7px 14px 5px;
+  border-radius:4px; white-space:nowrap;
+}
+header .home-link:hover{background:rgba(255,255,255,0.15);}
+
+.wrap{padding-top:24px !important;}
+.hero-banner{
+  background:var(--lucas-grey-light) !important; border:none !important; border-radius:0 !important;
+  border-left:6px solid var(--lucas-green) !important;
+}
+.hero-banner .hero-copy h2{color:var(--lucas-green) !important; font-family:var(--lucas-font); font-weight:700; font-size:1.5rem !important;}
+.hero-banner .hero-copy p{color:var(--lucas-grey) !important; font-size:1rem !important;}
+.hero-banner .hero-img{box-shadow:none !important; border-radius:0 !important;}
+
+.controls{border-radius:0 !important; background:var(--lucas-grey-light) !important; border:none !important;}
+.controls input[type="text"], .controls select{border-radius:4px !important; font-family:var(--lucas-font); font-size:1rem !important;}
+.table-scroll{border-radius:0 !important; border-top:4px solid var(--lucas-green) !important;}
+thead th{background:var(--lucas-grey-light) !important; color:var(--lucas-black) !important; font-family:var(--lucas-font);}
+.part-no{color:var(--lucas-green) !important;}
+.dim-cell .force{color:var(--lucas-green) !important;}
+.load-more-wrap button{border-radius:4px !important; font-family:var(--lucas-font);}
+.load-more-wrap button:hover{background:var(--lucas-green-dark); opacity:1 !important;}
+.meta-row button{border-radius:4px !important; font-family:var(--lucas-font);}
+.badge-count{border-radius:20px;}
+
+footer{border-top:6px solid var(--lucas-green); margin-top:40px; padding:24px 20px 40px !important; color:var(--lucas-grey) !important; font-size:0.85rem !important;}
+footer .strapline{display:block; margin-top:10px; font-weight:700; color:var(--lucas-green); font-size:1.15rem;}
+
+@media (max-width:720px){
+  header{min-height:48px; padding-right:12px !important; flex-wrap:wrap; gap:8px 12px !important;}
+  header .logo-mark{height:48px !important;}
+  header{position:static !important;}
+  header .title-block{padding:6px 12px 4px;}
+  header .home-link{margin:0 0 12px 12px;}
+}
