@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Cart – Lucas Online Catalogues</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/assets/icon-gas-springs.png">
+<link rel="stylesheet" href="/assets/lucas-brand.css">
+<style>
+*{box-sizing:border-box;}
+body{margin:0; background:#fff; color:var(--lucas-grey); font-family:var(--lucas-font); font-size:17px; line-height:1.5;}
+.wrap{max-width:1200px; margin:0 auto; padding:0 24px;}
+h1,h2,h3{font-family:var(--lucas-font); color:var(--lucas-green); margin:0;}
+a{color:var(--lucas-green);}
+.lucas-bar nav{margin-left:auto; display:flex; gap:6px; align-items:center;}
+.lucas-bar nav a{color:#fff; text-decoration:none; font-weight:600; font-size:0.95rem; padding:8px 12px 6px; border-radius:4px; white-space:nowrap;}
+.lucas-bar nav a:hover{background:rgba(255,255,255,0.15);}
+.lucas-bar nav a.current{background:rgba(255,255,255,0.18);}
+.lucas-bar nav b{background:#fff; color:var(--lucas-green); border-radius:20px; padding:2px 8px 0; margin-left:6px; font-size:0.85rem;}
+
+.pagehead{background:var(--lucas-grey-light); padding:40px 0 36px; margin-top:19px;}
+.pagehead h1{font-weight:700; font-size:clamp(1.8rem,4vw,2.5rem); line-height:1.1; margin-bottom:8px;}
+.pagehead p{margin:0; max-width:680px;}
+
+.layout{display:grid; grid-template-columns:minmax(0,1.5fr) minmax(320px,1fr); gap:32px; padding:36px 24px 20px; align-items:start;}
+.panel{border:1px solid var(--lucas-border); border-top:4px solid var(--lucas-green); background:#fff;}
+.panel-head{display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding:18px 20px 14px; border-bottom:1px solid var(--lucas-border);}
+.panel-head h2{font-size:1.35rem; font-weight:600;}
+.panel-head .muted{font-size:0.9rem;}
+.linkbtn{background:none; border:0; font:inherit; color:var(--lucas-grey); text-decoration:underline; cursor:pointer; padding:0; font-size:0.9rem;}
+.linkbtn:hover{color:var(--lucas-black);}
+
+table{width:100%; border-collapse:collapse; font-size:0.95rem;}
+th{text-align:left; font-weight:600; color:var(--lucas-black); background:var(--lucas-grey-light); padding:10px 12px 8px; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.04em;}
+td{padding:12px; border-top:1px solid var(--lucas-border); vertical-align:middle;}
+td.no{font-weight:700; color:var(--lucas-green); white-space:nowrap;}
+td.desc{color:var(--lucas-black);}
+td.desc small{display:block; color:var(--lucas-grey); font-size:0.82rem; margin-top:2px;}
+td.qty input{width:78px; padding:8px 8px 6px; border:1px solid var(--lucas-border); border-radius:4px; font:inherit; text-align:center;}
+td.rm button{background:none; border:0; cursor:pointer; color:var(--lucas-grey); font:inherit; font-size:0.85rem; text-decoration:underline; padding:4px;}
+td.rm button:hover{color:#b3261e;}
+.cat-row td{background:#f7f7f7; font-weight:600; color:var(--lucas-black); font-size:0.85rem; text-transform:uppercase; letter-spacing:0.04em; padding:8px 12px 6px;}
+.empty{padding:28px 20px; text-align:center;}
+.empty p{margin:0 0 16px;}
+.continue{padding:14px 20px 16px; border-top:1px solid var(--lucas-border); font-size:0.95rem;}
+
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; background:var(--lucas-green); color:#fff; font-family:var(--lucas-font); font-weight:600; font-size:1rem; text-decoration:none; padding:12px 22px 10px; border-radius:4px; border:0; cursor:pointer;}
+.btn:hover{background:var(--lucas-green-dark);}
+.btn:disabled{opacity:0.6; cursor:progress;}
+.btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .linkbtn:focus-visible{outline:3px solid var(--lucas-black); outline-offset:2px;}
+
+form{padding:18px 20px 22px; display:grid; gap:14px;}
+.two{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+label{display:block; font-weight:600; color:var(--lucas-black); font-size:0.9rem; margin-bottom:5px;}
+label .opt{font-weight:400; color:var(--lucas-grey);}
+input[type=text],input[type=email],input[type=tel],select,textarea{width:100%; padding:10px 12px 8px; border:1px solid #c9c9c9; border-radius:4px; font:inherit; font-size:1rem; color:var(--lucas-black); background:#fff;}
+textarea{min-height:96px; resize:vertical;}
+.invalid{border-color:#b3261e!important; background:#fdf3f2!important;}
+.err{display:none; color:#b3261e; font-size:0.85rem; margin-top:4px;}
+.invalid + .err{display:block;}
+.note{font-size:0.85rem;}
+.status{display:none; padding:12px 14px; border-radius:4px; font-size:0.95rem;}
+.status.show{display:block;}
+.status.bad{background:#fdf3f2; color:#8c1d18; border:1px solid #f2c7c3;}
+
+.thanks{max-width:720px; margin:40px auto 20px; text-align:center; padding:40px 24px; border:1px solid var(--lucas-border); border-top:4px solid var(--lucas-green);}
+.thanks .tick{width:64px; height:64px; border-radius:50%; background:var(--lucas-green); display:flex; align-items:center; justify-content:center; margin:0 auto 18px;}
+.thanks h1{font-size:clamp(1.7rem,4vw,2.3rem); margin-bottom:10px;}
+.ref{display:inline-flex; align-items:center; gap:12px; margin:18px 0 8px; padding:14px 18px 12px; background:var(--lucas-green-10); border:1px dashed var(--lucas-green); border-radius:6px; flex-wrap:wrap; justify-content:center;}
+.ref span{font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--lucas-grey);}
+.ref strong{font-size:1.6rem; color:var(--lucas-black); letter-spacing:0.04em;}
+.ref button{font:inherit; font-size:0.85rem; background:#fff; border:1px solid var(--lucas-green); color:var(--lucas-green); border-radius:4px; padding:6px 10px 4px; cursor:pointer;}
+.thanks .sub{max-width:520px; margin:10px auto 26px;}
+
+footer{margin-top:48px;}
+footer .rule{height:6px; background:var(--lucas-green);}
+footer .inner{display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; padding:24px 24px 28px; max-width:1200px; margin:0 auto; font-size:0.9rem;}
+footer a{font-weight:600; text-decoration:none;}
+footer .strapline{font-weight:700; color:var(--lucas-green); font-size:1.25rem; white-space:nowrap;}
+footer .bar{height:24px; background:var(--lucas-green);}
+
+@media (max-width:900px){ .layout{grid-template-columns:1fr;} }
+@media (max-width:600px){
+  body{font-size:16px;}
+  .wrap{padding:0 16px;} .layout{padding:24px 16px 12px;}
+  .lucas-bar nav a{padding:6px 8px 4px; font-size:0.85rem;}
+  .lucas-bar nav a:first-child{display:none;}
+  .two{grid-template-columns:1fr;}
+  thead{display:none;}
+  table, tbody, tr, td{display:block; width:100%;}
+  tr.item{display:grid; grid-template-columns:1fr auto; gap:2px 12px; padding:12px 16px; border-top:1px solid var(--lucas-border);}
+  tr.item td{border:0; padding:0;}
+  tr.item td.no{grid-column:1;} tr.item td.qty{grid-column:2; grid-row:1 / span 2;}
+  tr.item td.desc{grid-column:1;} tr.item td.oe{grid-column:1; font-size:0.85rem;}
+  tr.item td.rm{grid-column:2; text-align:right;}
+  tr.item td.oe::before{content:"OE: ";}
+  .cat-row td{padding:8px 16px 6px;}
+}
+</style>
+</head>
+<body>
+<header class="lucas-bar">
+  <a href="/" aria-label="Lucas online catalogues home"><img class="lucas-logo" src="/assets/lucas-logo.png" alt="Lucas"></a>
+  <nav aria-label="Main">
+    <a href="/">Catalogues</a>
+    <a href="/cart/" class="current" aria-current="page">Cart<b data-cart-count>0</b></a>
+  </nav>
+</header>
+
+<div id="app">
+  <section class="pagehead">
+    <div class="wrap">
+      <h1 id="title">Your cart</h1>
+      <p id="intro">Check the parts and quantities, then leave your details. We'll come back to you with prices and availability.</p>
+    </div>
+  </section>
+
+  <div class="wrap layout">
+    <section class="panel" aria-labelledby="partsTitle">
+      <div class="panel-head">
+        <h2 id="partsTitle">Parts <span class="muted" id="partsCount"></span></h2>
+        <button type="button" class="linkbtn" id="clearAll" hidden>Remove all</button>
+      </div>
+      <div id="items"></div>
+      <div class="continue"><a href="/">&larr; Continue browsing the catalogues</a></div>
+    </section>
+
+    <section class="panel" aria-labelledby="formTitle" id="contact">
+      <div class="panel-head"><h2 id="formTitle">Request for price</h2></div>
+      <form id="rfq" novalidate>
+        <div class="two">
+          <div><label for="f-name">Full name</label><input type="text" id="f-name" autocomplete="name" required><div class="err">Enter your name.</div></div>
+          <div><label for="f-company">Company <span class="opt">(optional)</span></label><input type="text" id="f-company" autocomplete="organization"></div>
+        </div>
+        <div class="two">
+          <div><label for="f-email">Email</label><input type="email" id="f-email" autocomplete="email" required><div class="err">Enter an email address like name@company.com.</div></div>
+          <div><label for="f-phone">Phone / WhatsApp</label><input type="tel" id="f-phone" autocomplete="tel" placeholder="+971 50 123 4567" required><div class="err">Enter a phone number.</div></div>
+        </div>
+        <div class="two">
+          <div><label for="f-country">Country</label><input type="text" id="f-country" autocomplete="country-name" required><div class="err">Enter your country.</div></div>
+          <div><label for="f-type">I am a</label>
+            <select id="f-type"><option>Distributor</option><option>Parts store</option><option>Workshop</option><option>Fleet operator</option><option>Other</option></select></div>
+        </div>
+        <div><label for="f-msg">Message <span class="opt" id="msgOpt">(optional)</span></label>
+          <textarea id="f-msg" placeholder="Delivery location, target price, anything else we should know."></textarea><div class="err">Tell us what you need.</div></div>
+        <input type="checkbox" id="botcheck" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
+        <div><button class="btn" type="submit" id="sendBtn">Send request</button></div>
+        <p class="note" style="margin:0">By sending, you agree that we can contact you about this request.</p>
+        <div class="status bad" id="status" role="alert"></div>
+      </form>
+    </section>
+  </div>
+</div>
+
+<footer>
+  <div class="rule"></div>
+  <div class="inner">
+    <div>Enquiries: <a href="mailto:info@lucasmeaparts.com">info@lucasmeaparts.com</a></div>
+    <div class="strapline">OUR RANGE GOES FURTHER.</div>
+  </div>
+  <div class="bar"></div>
+</footer>
+
+<script src="/assets/cart.js"></script>
+<script>
+(function(){
+  'use strict';
+  var EMAIL = 'info@lucasmeaparts.com';
+  var W3F_KEY = '9c667917-0eb8-4e60-b6f0-0dd8276a0b08'; // same Web3Forms inbox as the Stravik site
+  var cart = window.LucasCart;
+  var $ = function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  function render(){
+    var items = cart.items();
+    var box = $('items');
+    $('clearAll').hidden = items.length === 0;
+    $('partsCount').textContent = items.length ? '(' + items.length + ')' : '';
+    $('formTitle').textContent = items.length ? 'Request for price' : 'Contact us';
+    $('msgOpt').textContent = items.length ? '(optional)' : '';
+    if (!items.length){
+      box.innerHTML = '<div class="empty"><p>Your cart is empty. Tick the parts you need in any catalogue and choose <b>Add to cart</b>.</p><a class="btn" href="/">Browse catalogues</a></div>';
+      return;
+    }
+    var groups = {}, order = [];
+    items.forEach(function(it){ var c = it.catalogue || 'Other'; if(!groups[c]){ groups[c] = []; order.push(c); } groups[c].push(it); });
+    var html = '<table><thead><tr><th>Lucas no.</th><th>Vehicle / application</th><th>OE no.</th><th>Qty</th><th><span style="position:absolute;left:-9999px">Remove</span></th></tr></thead><tbody>';
+    order.forEach(function(c){
+      if (order.length > 1 || c) html += '<tr class="cat-row"><td colspan="5">' + esc(c) + '</td></tr>';
+      groups[c].forEach(function(it){
+        html += '<tr class="item" data-no="' + esc(it.no) + '" data-cat="' + esc(it.catalogue) + '">' +
+          '<td class="no">' + esc(it.no) + '</td>' +
+          '<td class="desc">' + esc(it.make) + (it.app ? '<small>' + esc(it.app) + '</small>' : '') + '</td>' +
+          '<td class="oe">' + esc(it.oe || '–') + '</td>' +
+          '<td class="qty"><input type="number" min="1" max="99999" inputmode="numeric" value="' + (it.qty || 1) + '" aria-label="Quantity for ' + esc(it.no) + '"></td>' +
+          '<td class="rm"><button type="button" aria-label="Remove ' + esc(it.no) + '">Remove</button></td></tr>';
+      });
+    });
+    box.innerHTML = html + '</tbody></table>';
+  }
+
+  $('items').addEventListener('change', function(e){
+    var tr = e.target.closest('tr.item'); if (!tr || !e.target.matches('.qty input')) return;
+    cart.setQty(tr.getAttribute('data-no'), tr.getAttribute('data-cat'), e.target.value);
+  });
+  $('items').addEventListener('click', function(e){
+    var b = e.target.closest('.rm button'); if (!b) return;
+    var tr = b.closest('tr.item'); cart.remove(tr.getAttribute('data-no'), tr.getAttribute('data-cat'));
+  });
+  $('clearAll').addEventListener('click', function(){ if (confirm('Remove all parts from your cart?')) cart.clear(); });
+  cart.onChange(render);
+  render();
+
+  function makeRef(){
+    var d = new Date(), p = function(n){ return (n < 10 ? '0' : '') + n; };
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s = '', r = new Uint32Array(4);
+    (window.crypto || window.msCrypto).getRandomValues(r);
+    for (var i = 0; i < 4; i++) s += chars[r[i] % chars.length];
+    return 'LMEA-' + String(d.getFullYear()).slice(2) + p(d.getMonth() + 1) + p(d.getDate()) + '-' + s;
+  }
+
+  var form = $('rfq'), btn = $('sendBtn'), status = $('status');
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var items = cart.items();
+    var v = function(id){ return $(id).value.trim(); };
+    var checks = [['f-name', function(x){ return x.length > 0; }],
+                  ['f-email', function(x){ return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x); }],
+                  ['f-phone', function(x){ return x.replace(/\D/g,'').length >= 6; }],
+                  ['f-country', function(x){ return x.length > 0; }],
+                  ['f-msg', function(x){ return items.length > 0 || x.length > 0; }]];
+    var firstBad = null;
+    checks.forEach(function(c){ var el = $(c[0]), ok = c[1](el.value.trim()); el.classList.toggle('invalid', !ok); if (!ok && !firstBad) firstBad = el; });
+    if (firstBad){ firstBad.focus(); return; }
+
+    var ref = makeRef();
+    var partsText = items.length ? items.map(function(it, i){
+      return (i + 1) + '. ' + it.no + '  x ' + it.qty + '  |  ' + (it.catalogue || '') + '  |  ' + [it.make, it.app].filter(Boolean).join(' ') + (it.oe ? '  |  OE ' + it.oe : '');
+    }).join('\n') : '(no parts, general enquiry)';
+    var totalQty = items.reduce(function(s, it){ return s + (parseInt(it.qty, 10) || 1); }, 0);
+    var who = v('f-company') || v('f-name');
+    var subject = (items.length ? 'Price request ' : 'Enquiry ') + ref + ' | ' + items.length + ' part' + (items.length === 1 ? '' : 's') + ' | ' + who;
+    var bodyText = 'Reference: ' + ref + '\nName: ' + v('f-name') + '\nCompany: ' + v('f-company') + '\nEmail: ' + v('f-email') +
+      '\nPhone: ' + v('f-phone') + '\nCountry: ' + v('f-country') + '\nI am a: ' + v('f-type') +
+      '\n\nParts (' + items.length + ' lines, ' + totalQty + ' pcs):\n' + partsText + '\n\nMessage:\n' + (v('f-msg') || '-');
+
+    btn.disabled = true; btn.textContent = 'Sending…'; status.classList.remove('show');
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        access_key: W3F_KEY, subject: subject, from_name: 'Lucas online catalogue', replyto: v('f-email'),
+        botcheck: $('botcheck').checked,
+        reference: ref, name: v('f-name'), company: v('f-company'), email: v('f-email'), phone: v('f-phone'),
+        country: v('f-country'), customer_type: v('f-type'),
+        parts_count: items.length + ' lines, ' + totalQty + ' pcs', parts: partsText, message: v('f-msg') || '-'
+      })
+    }).then(function(r){
+      return r.json().catch(function(){ return {}; }).then(function(j){ if (!r.ok || !j.success) throw new Error(j.message || ('Status ' + r.status)); });
+    }).then(function(){
+      var name = v('f-name').split(' ')[0], email = v('f-email');
+      cart.clear();
+      thankYou(ref, name, email, items.length);
+    }).catch(function(err){
+      var href = 'mailto:' + EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyText);
+      status.innerHTML = '<b>Your request wasn\'t sent.</b> Check your connection and try again, or <a href="' + href + '">email it to ' + EMAIL + '</a> instead. Your cart has been kept.<br><small>Details: ' + esc(err.message || 'Could not reach the form service') + '</small>';
+      status.classList.add('show');
+    }).then(function(){ btn.disabled = false; btn.textContent = 'Send request'; });
+  });
+
+  function thankYou(ref, name, email, n){
+    $('app').innerHTML =
+      '<div class="wrap"><section class="thanks" aria-labelledby="tyTitle">' +
+      '<div class="tick" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>' +
+      '<h1 id="tyTitle" tabindex="-1">Thank you' + (name ? ', ' + esc(name) : '') + '</h1>' +
+      '<p>' + (n ? 'Your request for price has been received.' : 'Your enquiry has been received.') + '</p>' +
+      '<div class="ref"><span>Your reference number</span><strong id="refNo">' + esc(ref) + '</strong><button type="button" id="copyRef">Copy</button></div>' +
+      '<p class="sub">A sales agent will contact you shortly at <b>' + esc(email) + '</b>. Please quote this reference number in any correspondence.</p>' +
+      '<a class="btn" href="/">Back to catalogues</a>' +
+      '</section></div>';
+    var h = $('tyTitle'); h.focus(); window.scrollTo(0, 0);
+    $('copyRef').addEventListener('click', function(){
+      var b = this;
+      (navigator.clipboard ? navigator.clipboard.writeText(ref) : Promise.reject()).then(function(){ b.textContent = 'Copied'; }, function(){ b.textContent = 'Select and copy'; });
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -53,6 +53,15 @@ h1,h2,h3{font-family:var(--lucas-font); color:var(--lucas-green); margin:0;}
   font-weight:600; font-size:0.9rem; padding:10px 16px 8px; border-radius:4px; text-transform:uppercase; letter-spacing:0.03em;
 }
 
+.bar-nav{margin-left:auto; display:flex; gap:6px; align-items:center;}
+.bar-nav a{color:#fff; text-decoration:none; font-weight:600; font-size:0.95rem; padding:8px 12px 6px; border-radius:4px; white-space:nowrap;}
+.bar-nav a:hover{background:rgba(255,255,255,0.15);}
+.bar-nav b{background:#fff; color:var(--lucas-green); border-radius:20px; padding:2px 8px 0; margin-left:6px; font-size:0.85rem;}
+.how{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin:0 0 8px; padding:0; list-style:none; counter-reset:step;}
+.how li{counter-increment:step; background:var(--lucas-grey-light); padding:18px 20px 16px; position:relative;}
+.how li::before{content:counter(step); display:inline-flex; width:30px; height:30px; border-radius:50%; background:var(--lucas-green); color:#fff; font-weight:700; align-items:center; justify-content:center; margin-bottom:8px; padding-top:3px;}
+.how b{display:block; color:var(--lucas-black); font-weight:600;}
+.how span{font-size:0.95rem;}
 footer{margin-top:56px;}
 footer .rule{height:6px; background:var(--lucas-green);}
 footer .inner{display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; padding:28px 24px 32px; max-width:1200px; margin:0 auto; font-size:0.9rem;}
@@ -67,6 +76,9 @@ footer .bar{height:24px; background:var(--lucas-green);}
   .wrap{padding:0 16px;}
   .hero{padding:40px 0 44px;}
   .range{padding:40px 0 8px;}
+  .how{grid-template-columns:1fr;}
+  .bar-nav a{padding:6px 8px 4px; font-size:0.85rem;}
+  .bar-nav a:first-child{display:none;}
   footer .inner{padding:24px 16px 28px;}
 }
 </style>
@@ -74,7 +86,10 @@ footer .bar{height:24px; background:var(--lucas-green);}
 <body>
 <header class="lucas-bar">
   <img class="lucas-logo" src="assets/lucas-logo.png" alt="Lucas">
-  <span class="bar-title">Online Catalogues</span>
+  <nav class="bar-nav" aria-label="Main">
+    <a href="cart/#contact">Contact us</a>
+    <a href="cart/">Cart<b data-cart-count>0</b></a>
+  </nav>
 </header>
 
 <section class="hero">
@@ -121,6 +136,16 @@ footer .bar{height:24px; background:var(--lucas-green);}
 
     </div>
   </section>
+
+  <section class="range" aria-labelledby="howTitle" style="padding-top:24px">
+    <h2 id="howTitle">How to request a price</h2>
+    <p class="lead">One cart works across every catalogue, so you can mix ranges in a single request.</p>
+    <ol class="how">
+      <li><b>Tick the parts you need</b><span>Use the tick box next to each Lucas number, then choose Add to cart.</span></li>
+      <li><b>Review your cart</b><span>Set quantities and remove anything you don't need.</span></li>
+      <li><b>Send your details</b><span>You'll get a reference number, and a sales agent will contact you shortly.</span></li>
+    </ol>
+  </section>
 </main>
 
 <footer>
@@ -134,5 +159,6 @@ footer .bar{height:24px; background:var(--lucas-green);}
   </div>
   <div class="bar"></div>
 </footer>
+<script src="assets/cart.js"></script>
 </body>
 </html>
