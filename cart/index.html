@@ -72,6 +72,9 @@ textarea{min-height:96px; resize:vertical;}
 .ref strong{font-size:1.6rem; color:var(--lucas-black); letter-spacing:0.04em;}
 .ref button{font:inherit; font-size:0.85rem; background:#fff; border:1px solid var(--lucas-green); color:var(--lucas-green); border-radius:4px; padding:6px 10px 4px; cursor:pointer;}
 .thanks .sub{max-width:520px; margin:10px auto 26px;}
+.ty-actions{display:flex; gap:12px; justify-content:center; flex-wrap:wrap;}
+.btn.outline{background:#fff; color:var(--lucas-green); border:2px solid var(--lucas-green); padding:10px 20px 8px;}
+.btn.outline:hover{background:var(--lucas-green-10);}
 
 footer{margin-top:48px;}
 footer .rule{height:6px; background:var(--lucas-green);}
@@ -163,11 +166,16 @@ footer .bar{height:24px; background:var(--lucas-green);}
 </footer>
 
 <script src="/assets/cart.js"></script>
+<script src="/assets/rfq-excel.js"></script>
 <script>
 (function(){
   'use strict';
   var EMAIL = 'info@lucasmeaparts.com';
-  var W3F_KEY = '9c667917-0eb8-4e60-b6f0-0dd8276a0b08'; // same Web3Forms inbox as the Stravik site
+  // Main handler: Google Apps Script web app (emails sales with the Excel attached + confirms to the customer).
+  // Paste the Web app URL (ends in /exec) between the quotes. Leave empty to use the backup below only.
+  var RFQ_ENDPOINT = '';
+  // Backup: Web3Forms (same inbox as the Stravik site). Used if the main handler is not set up or fails.
+  var W3F_KEY = '9c667917-0eb8-4e60-b6f0-0dd8276a0b08';
   var cart = window.LucasCart;
   var $ = function(id){ return document.getElementById(id); };
   function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -246,40 +254,91 @@ footer .bar{height:24px; background:var(--lucas-green);}
       '\n\nParts (' + items.length + ' lines, ' + totalQty + ' pcs):\n' + partsText + '\n\nMessage:\n' + (v('f-msg') || '-');
 
     btn.disabled = true; btn.textContent = 'Sending…'; status.classList.remove('show');
-    fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({
-        access_key: W3F_KEY, subject: subject, from_name: 'Lucas online catalogue', replyto: v('f-email'),
-        botcheck: $('botcheck').checked,
-        reference: ref, name: v('f-name'), company: v('f-company'), email: v('f-email'), phone: v('f-phone'),
-        country: v('f-country'), customer_type: v('f-type'),
-        parts_count: items.length + ' lines, ' + totalQty + ' pcs', parts: partsText, message: v('f-msg') || '-'
-      })
-    }).then(function(r){
-      return r.json().catch(function(){ return {}; }).then(function(j){ if (!r.ok || !j.success) throw new Error(j.message || ('Status ' + r.status)); });
-    }).then(function(){
+    var req = { ref: ref, date: new Date(), name: v('f-name'), company: v('f-company'), email: v('f-email'), phone: v('f-phone'),
+                country: v('f-country'), type: v('f-type'), message: v('f-msg'), items: items };
+    var excelBlob = null;
+
+    // 1) Build the Excel file (skipped for enquiries without parts; a failure here never blocks sending)
+    var excelStep = (items.length && window.LucasRFQExcel)
+      ? LucasRFQExcel.build(req).then(function(b){ excelBlob = b; return blobToBase64(b); }).catch(function(e){ console.warn('Excel not created', e); return null; })
+      : Promise.resolve(null);
+
+    excelStep.then(function(b64){
+      // 2) Main handler (Apps Script): sales email with Excel + customer confirmation
+      if (!RFQ_ENDPOINT) return sendBackup();
+      return fetch(RFQ_ENDPOINT, {
+        method: 'POST', redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },   // plain text avoids a CORS preflight
+        body: JSON.stringify({
+          ref: ref, name: req.name, company: req.company, email: req.email, phone: req.phone, country: req.country,
+          type: req.type, message: req.message, botcheck: $('botcheck').checked, page: location.href,
+          items: items.map(function(it){ return { no: it.no, catalogue: it.catalogue, make: it.make, app: it.app, oe: it.oe, qty: it.qty }; }),
+          excel: b64 ? { name: LucasRFQExcel.fileName(ref), base64: b64 } : null
+        })
+      }).then(function(r){ return r.json(); }).then(function(j){
+        if (!j || !j.success) throw new Error(j && j.message || 'Request not accepted');
+        return { confirmation: !!j.confirmation };
+      }).catch(function(err){
+        console.warn('Main handler failed, using backup:', err);
+        if (/too many requests/i.test(err.message || '')) throw err;
+        return sendBackup();
+      });
+    }).then(function(result){
       var name = v('f-name').split(' ')[0], email = v('f-email');
       cart.clear();
-      thankYou(ref, name, email, items.length);
+      thankYou(ref, name, email, items.length, result && result.confirmation, excelBlob);
     }).catch(function(err){
       var href = 'mailto:' + EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyText);
       status.innerHTML = '<b>Your request wasn\'t sent.</b> Check your connection and try again, or <a href="' + href + '">email it to ' + EMAIL + '</a> instead. Your cart has been kept.<br><small>Details: ' + esc(err.message || 'Could not reach the form service') + '</small>';
       status.classList.add('show');
     }).then(function(){ btn.disabled = false; btn.textContent = 'Send request'; });
+
+    function sendBackup(){
+      return fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          access_key: W3F_KEY, subject: subject, from_name: 'Lucas online catalogue', replyto: v('f-email'),
+          botcheck: $('botcheck').checked,
+          reference: ref, name: v('f-name'), company: v('f-company'), email: v('f-email'), phone: v('f-phone'),
+          country: v('f-country'), customer_type: v('f-type'),
+          parts_count: items.length + ' lines, ' + totalQty + ' pcs', parts: partsText, message: v('f-msg') || '-'
+        })
+      }).then(function(r){
+        return r.json().catch(function(){ return {}; }).then(function(j){ if (!r.ok || !j.success) throw new Error(j.message || ('Status ' + r.status)); return { confirmation: false }; });
+      });
+    }
   });
 
-  function thankYou(ref, name, email, n){
+  function blobToBase64(blob){
+    return new Promise(function(resolve, reject){
+      var fr = new FileReader();
+      fr.onload = function(){ resolve(String(fr.result).split(',')[1] || ''); };
+      fr.onerror = function(){ reject(fr.error); };
+      fr.readAsDataURL(blob);
+    });
+  }
+
+  // Start loading the Excel library as soon as someone begins filling in the form
+  form.addEventListener('focusin', function once(){ form.removeEventListener('focusin', once); if (window.LucasRFQExcel) LucasRFQExcel.preload().catch(function(){}); });
+
+  function thankYou(ref, name, email, n, confirmed, excelBlob){
     $('app').innerHTML =
       '<div class="wrap"><section class="thanks" aria-labelledby="tyTitle">' +
       '<div class="tick" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>' +
       '<h1 id="tyTitle" tabindex="-1">Thank you' + (name ? ', ' + esc(name) : '') + '</h1>' +
       '<p>' + (n ? 'Your request for price has been received.' : 'Your enquiry has been received.') + '</p>' +
       '<div class="ref"><span>Your reference number</span><strong id="refNo">' + esc(ref) + '</strong><button type="button" id="copyRef">Copy</button></div>' +
-      '<p class="sub">A sales agent will contact you shortly at <b>' + esc(email) + '</b>. Please quote this reference number in any correspondence.</p>' +
-      '<a class="btn" href="/">Back to catalogues</a>' +
+      '<p class="sub">A sales agent will contact you shortly at <b>' + esc(email) + '</b>.' +
+        (confirmed ? ' We\'ve also emailed you a confirmation with your reference number and parts list.' : '') +
+        ' Please quote this reference number in any correspondence.</p>' +
+      '<div class="ty-actions">' +
+        (excelBlob ? '<a class="btn outline" id="dlExcel" download="' + esc(LucasRFQExcel.fileName(ref)) + '">Download your parts list (Excel)</a>' : '') +
+        '<a class="btn" href="/">Back to catalogues</a>' +
+      '</div>' +
       '</section></div>';
     var h = $('tyTitle'); h.focus(); window.scrollTo(0, 0);
+    if (excelBlob) $('dlExcel').href = URL.createObjectURL(excelBlob);
     $('copyRef').addEventListener('click', function(){
       var b = this;
       (navigator.clipboard ? navigator.clipboard.writeText(ref) : Promise.reject()).then(function(){ b.textContent = 'Copied'; }, function(){ b.textContent = 'Select and copy'; });

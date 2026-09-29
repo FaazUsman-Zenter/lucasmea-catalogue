@@ -44,7 +44,7 @@
       var added = 0;
       list.forEach(function (it) {
         if (!it || !it.no || seen[keyOf(it)]) return;
-        items.push({ no: it.no, catalogue: it.catalogue || '', make: it.make || '', app: it.app || '', oe: it.oe || '', qty: Math.max(1, parseInt(it.qty, 10) || 1) });
+        items.push({ no: it.no, catalogue: it.catalogue || '', make: it.make || '', app: it.app || '', oe: it.oe || '', details: it.details || null, qty: Math.max(1, parseInt(it.qty, 10) || 1) });
         seen[keyOf(it)] = true; added++;
       });
       save(items); return added;
@@ -106,6 +106,13 @@
 
     // map column names before inserting our column
     var heads = Array.prototype.map.call(headRow.children, function (th) { return text(th).toLowerCase(); });
+    // Readable column labels for the Excel sheet, e.g. "Length (mm)", "Rod Ø (mm)"
+    var labels = Array.prototype.map.call(headRow.children, function (th) {
+      var c = th.cloneNode(true);
+      Array.prototype.forEach.call(c.querySelectorAll('.key,[aria-hidden="true"]'), function (k) { k.remove(); });
+      Array.prototype.forEach.call(c.querySelectorAll('small'), function (sm) { var u = text(sm); sm.textContent = u ? ' (' + u + ')' : ''; });
+      return text(c).replace(/\s+/g, ' ');
+    });
     function col(re) { for (var i = 0; i < heads.length; i++) if (re.test(heads[i])) return i; return -1; }
     var cMake = col(/^make/), cApp = col(/applic/), cOe = col(/^oe/);
 
@@ -120,7 +127,9 @@
     function rowItem(tr) {
       var cells = tr.children, off = tr.__lcOff || 0;
       function c(i) { return i < 0 ? '' : text(cells[i + off]); }
-      return { no: tr.__lcNo, catalogue: CATALOGUE, make: c(cMake), app: c(cApp), oe: c(cOe) };
+      var details = [];
+      for (var i = 0; i < labels.length; i++) { if (labels[i]) details.push([labels[i], c(i)]); }
+      return { no: tr.__lcNo, catalogue: CATALOGUE, make: c(cMake), app: c(cApp), oe: c(cOe), details: details };
     }
 
     function paint(tr) {
