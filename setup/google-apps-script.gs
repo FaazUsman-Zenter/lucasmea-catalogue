@@ -33,7 +33,7 @@ var CONFIG = {
   SITE_URL: 'https://lucasmeacatalogue.com',
   LOGO_URL: 'https://lucasmeacatalogue.com/assets/lucas-logo.png',
   SEND_CUSTOMER_EMAIL: true,
-  ATTACH_EXCEL_TO_CUSTOMER: false,         // true = customer also gets the Excel file
+  ATTACH_EXCEL_TO_CUSTOMER: true,          // false = customer gets the email without the Excel file
   MAX_REQUESTS_PER_EMAIL_PER_HOUR: 5,      // simple protection against abuse
   LOG_SHEET_NAME: 'Requests'
 };
