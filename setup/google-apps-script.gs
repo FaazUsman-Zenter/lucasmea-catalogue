@@ -6,7 +6,10 @@
  * What it does, for every request sent from lucasmeacatalogue.com/cart/:
  *   1. Emails the sales team, with the parts list and the Excel file attached.
  *   2. Emails the customer a confirmation with their reference number and parts.
- *   3. Adds a row to the "Requests" tab of this Google Sheet (a running log).
+ *   3. Saves the Excel file into a master Google Drive folder:
+ *        RFQ Inquiries (master) / Lucas online catalogue / 2026-09 / LMEA-260929-AB12 - Company.xlsx
+ *   4. Adds a row to the "Requests" tab of this Google Sheet (a running log with a link
+ *      to each Excel file). testSetup moves this Sheet into the master folder too.
  *
  * Setup (about 10 minutes, once):
  *   1. Sign in to the Google account that should send the emails.
@@ -35,7 +38,10 @@ var CONFIG = {
   SEND_CUSTOMER_EMAIL: true,
   ATTACH_EXCEL_TO_CUSTOMER: true,          // false = customer gets the email without the Excel file
   MAX_REQUESTS_PER_EMAIL_PER_HOUR: 5,      // simple protection against abuse
-  LOG_SHEET_NAME: 'Requests'
+  LOG_SHEET_NAME: 'Requests',
+  MASTER_FOLDER_NAME: 'RFQ Inquiries (master)', // created in My Drive on first run
+  MASTER_FOLDER_ID: '',                    // optional: paste the ID of an existing (e.g. shared) folder to use instead
+  SOURCE_FOLDER: 'Lucas online catalogue'  // sub-folder for this website (Stravik can get its own later)
 };
 
 var GREEN = '#00954C', BLACK = '#231F20', GREY = '#6D6E71', LIGHT = '#EDEDED';
@@ -88,6 +94,12 @@ function doPost(e) {
     var totalQty = items.reduce(function (s, it) { return s + it.qty; }, 0);
     var who = req.company || req.name;
 
+    // Save the Excel file to the master Drive folder (never blocks the emails)
+    req.fileUrl = '';
+    if (attachments.length) {
+      try { req.fileUrl = saveToDrive_(req, attachments[0]); } catch (err) { console.warn('Drive save failed: ' + err); }
+    }
+
     // 1. Sales team
     MailApp.sendEmail({
       to: CONFIG.SALES_EMAIL,
@@ -132,13 +144,42 @@ function doGet() { return json_({ ok: true, service: 'Lucas RFQ handler' }); }
 
 /** Run this once from the editor to grant permissions and send yourself a test email. */
 function testSetup() {
+  var master = masterFolder_();
+  child_(master, CONFIG.SOURCE_FOLDER);
+  try { sheet_(); } catch (err) {}
+  try { // keep the log Sheet inside the master folder
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    if (ss) DriveApp.getFileById(ss.getId()).moveTo(master);
+  } catch (err) { Logger.log('Could not move the Sheet into the folder: ' + err); }
   MailApp.sendEmail({
     to: CONFIG.SALES_EMAIL, name: CONFIG.FROM_NAME,
     subject: 'Lucas RFQ handler: test email',
-    htmlBody: '<p>The request-for-price handler is set up and can send email.</p><p>Remaining daily email quota: ' + MailApp.getRemainingDailyQuota() + '</p>'
+    htmlBody: '<p>The request-for-price handler is set up and can send email.</p>' +
+      '<p>Master folder: <a href="' + master.getUrl() + '">' + esc_(CONFIG.MASTER_FOLDER_NAME) + '</a></p>' +
+      '<p>Remaining daily email quota: ' + MailApp.getRemainingDailyQuota() + '</p>'
   });
-  try { sheet_(); } catch (err) {}
-  Logger.log('Test email sent to ' + CONFIG.SALES_EMAIL + '. Remaining quota today: ' + MailApp.getRemainingDailyQuota());
+  Logger.log('Test email sent to ' + CONFIG.SALES_EMAIL + '. Master folder: ' + master.getUrl() + ' . Remaining quota today: ' + MailApp.getRemainingDailyQuota());
+}
+
+/* ---------------- master folder ---------------- */
+
+function masterFolder_() {
+  var props = PropertiesService.getScriptProperties();
+  var id = CONFIG.MASTER_FOLDER_ID || props.getProperty('MASTER_FOLDER_ID');
+  if (id) { try { var f0 = DriveApp.getFolderById(id); if (!f0.isTrashed()) return f0; } catch (err) {} }
+  var it = DriveApp.getFoldersByName(CONFIG.MASTER_FOLDER_NAME);
+  var f = it.hasNext() ? it.next() : DriveApp.createFolder(CONFIG.MASTER_FOLDER_NAME);
+  props.setProperty('MASTER_FOLDER_ID', f.getId());
+  return f;
+}
+function child_(parent, name) { var it = parent.getFoldersByName(name); return it.hasNext() ? it.next() : parent.createFolder(name); }
+function saveToDrive_(req, blob) {
+  var month = Utilities.formatDate(new Date(), 'Asia/Dubai', 'yyyy-MM');
+  var folder = child_(child_(masterFolder_(), CONFIG.SOURCE_FOLDER), month);
+  var who = (req.company || req.name).replace(/[\\/:*?"<>|#%]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
+  var file = folder.createFile(blob.copyBlob().setName(req.ref + ' - ' + who + '.xlsx'));
+  file.setDescription('Request for price ' + req.ref + ' from ' + req.name + ' <' + req.email + '>');
+  return file.getUrl();
 }
 
 /* ---------------- helpers ---------------- */
@@ -206,6 +247,7 @@ function salesHtml_(req, items, totalQty, hasExcel) {
     '<h1 style="margin:0 0 6px;font:bold 22px Arial,sans-serif;color:' + GREEN + '">' + (items.length ? 'New request for price' : 'New enquiry') + '</h1>' +
     '<p style="margin:0 0 14px">Received ' + now_() + ' from the online catalogue. Reply to this email to answer the customer directly.' +
     (hasExcel ? ' The parts list is attached as an Excel file, with columns for price and lead time.' : '') + '</p>' +
+    (req.fileUrl ? '<p style="margin:0 0 14px">Saved to the master folder: <a href="' + esc_(req.fileUrl) + '" style="color:' + GREEN + '">open the Excel file in Google Drive</a>.</p>' : '') +
     (req.link ? '<p style="margin:0 0 14px"><a href="' + esc_(req.link) + '" style="display:inline-block;background:' + GREEN + ';color:#fff;font:bold 14px Arial,sans-serif;text-decoration:none;padding:10px 18px;border-radius:4px">Open request &amp; download Excel</a></p>' : '') +
     detailsTable_(req) +
     (items.length ? '<h2 style="margin:18px 0 4px;font:bold 16px Arial,sans-serif;color:' + GREEN + '">Parts (' + items.length + ' lines, ' + totalQty + ' pcs)</h2>' + partsTable_(items, totalQty) : ''));
@@ -233,8 +275,8 @@ function sheet_() {
   if (!sh) {
     sh = ss.insertSheet(CONFIG.LOG_SHEET_NAME);
     sh.appendRow(['Received (UAE)', 'Reference', 'Name', 'Company', 'Email', 'Phone / WhatsApp', 'Country', 'Customer type',
-      'Lines', 'Total qty', 'Parts', 'Message', 'Confirmation sent', 'Status', 'Assigned to', 'Notes']);
-    sh.getRange(1, 1, 1, 16).setFontWeight('bold').setBackground(GREEN).setFontColor('#ffffff');
+      'Lines', 'Total qty', 'Parts', 'Excel file', 'Message', 'Confirmation sent', 'Status', 'Assigned to', 'Notes']);
+    sh.getRange(1, 1, 1, 17).setFontWeight('bold').setBackground(GREEN).setFontColor('#ffffff');
     sh.setFrozenRows(1);
     sh.setColumnWidth(11, 420);
   }
@@ -248,5 +290,6 @@ function log_(req, items, totalQty, customerSent) {
   // Store customer text as plain text so nothing typed into the form can run as a formula
   var t = function (v) { v = String(v == null ? '' : v); return /^[=+\-@]/.test(v) ? "'" + v : v; };
   sh.appendRow([now_(), req.ref, t(req.name), t(req.company), t(req.email), t(req.phone), t(req.country), t(req.type),
-    items.length, totalQty, t(parts), t(req.message), customerSent ? 'Yes' : 'No', 'New', '', '']);
+    items.length, totalQty, t(parts), '', t(req.message), customerSent ? 'Yes' : 'No', 'New', '', '']);
+  if (req.fileUrl) sh.getRange(sh.getLastRow(), 12).setFormula('=HYPERLINK("' + req.fileUrl.replace(/"/g, '') + '","Open Excel")');
 }
