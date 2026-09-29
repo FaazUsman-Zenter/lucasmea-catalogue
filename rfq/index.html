@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request for Price – Lucas Online Catalogues</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" type="image/png" href="/assets/icon-gas-springs.png">
+<link rel="stylesheet" href="/assets/lucas-brand.css">
+<style>
+*{box-sizing:border-box;}
+body{margin:0; background:#fff; color:var(--lucas-grey); font-family:var(--lucas-font); font-size:17px; line-height:1.5;}
+.wrap{max-width:1100px; margin:0 auto; padding:0 24px;}
+h1,h2{font-family:var(--lucas-font); color:var(--lucas-green); margin:0;}
+a{color:var(--lucas-green);}
+.pagehead{background:var(--lucas-grey-light); padding:36px 0 32px; margin-top:19px;}
+.pagehead .eyebrow{text-transform:uppercase; letter-spacing:0.06em; font-size:0.85rem; font-weight:600;}
+.pagehead h1{font-weight:700; font-size:clamp(1.7rem,4vw,2.4rem); line-height:1.1; margin:4px 0 8px; color:var(--lucas-black);}
+.pagehead p{margin:0 0 18px;}
+.actions{display:flex; gap:12px; flex-wrap:wrap; align-items:center;}
+.btn{display:inline-flex; align-items:center; gap:8px; background:var(--lucas-green); color:#fff; font-family:var(--lucas-font); font-weight:600; font-size:1rem; text-decoration:none; padding:12px 22px 10px; border-radius:4px; border:0; cursor:pointer;}
+.btn:hover{background:var(--lucas-green-dark);}
+.btn:disabled{opacity:0.6; cursor:progress;}
+.btn.outline{background:#fff; color:var(--lucas-green); border:2px solid var(--lucas-green); padding:10px 20px 8px;}
+.btn.outline:hover{background:var(--lucas-green-10);}
+.btn:focus-visible{outline:3px solid var(--lucas-black); outline-offset:2px;}
+.note{font-size:0.9rem;}
+section{margin:32px 0;}
+section h2{font-size:1.3rem; font-weight:600; margin-bottom:10px;}
+table{width:100%; border-collapse:collapse; font-size:0.95rem;}
+.details td{border:1px solid var(--lucas-border); padding:8px 12px 6px; vertical-align:top; color:var(--lucas-black);}
+.details td:first-child{width:180px; background:var(--lucas-grey-light); color:var(--lucas-grey); font-weight:600; font-size:0.85rem;}
+.parts th{text-align:left; font-weight:600; color:#fff; background:var(--lucas-green); padding:10px 12px 8px; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.04em;}
+.parts td{padding:10px 12px 8px; border-bottom:1px solid var(--lucas-border); vertical-align:top; color:var(--lucas-black);}
+.parts td.no{font-weight:700; color:var(--lucas-green); white-space:nowrap;}
+.parts td small{display:block; color:var(--lucas-grey); font-size:0.82rem;}
+.parts td.qty{text-align:center; font-weight:700;}
+.parts tr.total td{background:var(--lucas-green-10); font-weight:700; border-top:2px solid var(--lucas-green);}
+.scroll{overflow-x:auto; border:1px solid var(--lucas-border);}
+.error{margin:40px auto; max-width:640px; padding:28px; border:1px solid var(--lucas-border); border-top:4px solid #b3261e; text-align:center;}
+.error h1{color:var(--lucas-black); font-size:1.5rem; margin-bottom:8px;}
+footer{margin-top:48px;}
+footer .rule{height:6px; background:var(--lucas-green);}
+footer .inner{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; padding:22px 24px 26px; max-width:1100px; margin:0 auto; font-size:0.9rem;}
+footer .strapline{font-weight:700; color:var(--lucas-green); font-size:1.2rem;}
+footer .bar{height:24px; background:var(--lucas-green);}
+@media (max-width:600px){ body{font-size:16px;} .wrap{padding:0 16px;} .details td:first-child{width:120px;} .parts th:nth-child(4), .parts td:nth-child(4){display:none;} }
+</style>
+</head>
+<body>
+<header class="lucas-bar">
+  <a href="/" aria-label="Lucas online catalogues home"><img class="lucas-logo" src="/assets/lucas-logo.png" alt="Lucas"></a>
+  <span class="bar-title">Request for price</span>
+</header>
+
+<main id="app">
+  <div class="wrap"><p style="padding:40px 0">Loading the request…</p></div>
+</main>
+
+<footer>
+  <div class="rule"></div>
+  <div class="inner"><span>lucasmeacatalogue.com</span><span class="strapline">OUR RANGE GOES FURTHER.</span></div>
+  <div class="bar"></div>
+</footer>
+
+<script src="/assets/rfq-link.js"></script>
+<script src="/assets/rfq-excel.js"></script>
+<script>
+(function(){
+  'use strict';
+  var app = document.getElementById('app');
+  function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  function fmt(d){ return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+
+  window.addEventListener('hashchange', function(){ location.reload(); });
+  LucasRFQLink.read(location.hash).then(function(req){
+    document.title = 'Request for Price ' + req.ref + ' – Lucas';
+    var total = req.items.reduce(function(s, it){ return s + (Number(it.qty) || 0); }, 0);
+    var rows = [['Reference', '<b>' + esc(req.ref) + '</b>'], ['Received', esc(fmt(req.date))], ['Name', esc(req.name)], ['Company', esc(req.company || '–')],
+      ['Email', req.email ? '<a href="mailto:' + esc(req.email) + '?subject=' + encodeURIComponent('Your request for price ' + req.ref) + '">' + esc(req.email) + '</a>' : '–'],
+      ['Phone / WhatsApp', esc(req.phone || '–')], ['Country', esc(req.country || '–')], ['Customer type', esc(req.type || '–')],
+      ['Message', esc(req.message || '–').replace(/\n/g, '<br>')]];
+    app.innerHTML =
+      '<div class="pagehead"><div class="wrap">' +
+        '<div class="eyebrow">Request for price</div>' +
+        '<h1>' + esc(req.ref) + '</h1>' +
+        '<p>' + esc(req.company || req.name) + ' · ' + req.items.length + ' line' + (req.items.length === 1 ? '' : 's') + ', ' + total + ' pcs · ' + esc(fmt(req.date)) + '</p>' +
+        '<div class="actions">' +
+          (req.items.length ? '<button class="btn" id="dl" type="button">Download Excel</button>' : '') +
+          (req.email ? '<a class="btn outline" href="mailto:' + esc(req.email) + '?subject=' + encodeURIComponent('Your request for price ' + req.ref) + '">Reply to customer</a>' : '') +
+        '</div>' +
+        '<p class="note" id="dlNote" style="margin:10px 0 0"></p>' +
+      '</div></div>' +
+      '<div class="wrap">' +
+        '<section><h2>Customer</h2><table class="details">' + rows.map(function(r){ return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>'; }).join('') + '</table></section>' +
+        (req.items.length ? '<section><h2>Parts</h2><div class="scroll"><table class="parts"><thead><tr><th>#</th><th>Lucas no.</th><th>Vehicle / application</th><th>OE no.</th><th style="text-align:center">Qty</th></tr></thead><tbody>' +
+          req.items.map(function(it, i){
+            return '<tr><td>' + (i + 1) + '</td><td class="no">' + esc(it.no) + '<small>' + esc(it.catalogue) + '</small></td><td>' + esc(it.make) + (it.app ? '<small>' + esc(it.app) + '</small>' : '') + '</td><td>' + esc(it.oe || '–') + '</td><td class="qty">' + esc(it.qty) + '</td></tr>';
+          }).join('') +
+          '<tr class="total"><td colspan="4" style="text-align:right">Total</td><td class="qty">' + total + '</td></tr></tbody></table></div></section>' : '') +
+      '</div>';
+
+    var btn = document.getElementById('dl'), note = document.getElementById('dlNote');
+    if (btn) {
+      LucasRFQExcel.preload().catch(function(){});
+      btn.addEventListener('click', function(){
+        btn.disabled = true; btn.textContent = 'Preparing Excel…'; note.textContent = '';
+        LucasRFQExcel.build(req).then(function(blob){
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob); a.download = LucasRFQExcel.fileName(req.ref);
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function(){ URL.revokeObjectURL(a.href); }, 60000);
+          note.textContent = 'Downloaded ' + LucasRFQExcel.fileName(req.ref) + '.';
+        }).catch(function(e){
+          note.textContent = 'The Excel file could not be created: ' + (e && e.message || e) + '. Please try again.';
+        }).then(function(){ btn.disabled = false; btn.textContent = 'Download Excel'; });
+      });
+    }
+  }).catch(function(err){
+    app.innerHTML = '<div class="wrap"><div class="error"><h1>This request link could not be opened</h1><p>' + esc(err.message) + '</p><a class="btn" href="/">Go to the catalogues</a></div></div>';
+  });
+})();
+</script>
+</body>
+</html>

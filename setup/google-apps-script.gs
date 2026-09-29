@@ -55,7 +55,8 @@ function doPost(e) {
       country: clean_(d.country, 80),
       type: clean_(d.type, 60),
       message: clean_(d.message, 3000),
-      page: clean_(d.page, 200)
+      page: clean_(d.page, 200),
+      link: /^https:\/\/lucasmeacatalogue\.com\/rfq\/#[\w-]+$/.test(String(d.link || '')) ? String(d.link).slice(0, 60000) : ''
     };
     if (!/^LMEA-\d{6}-[A-Z0-9]{4}$/.test(req.ref)) throw new Error('Invalid reference');
     if (!req.name) throw new Error('Name is required');
@@ -205,6 +206,7 @@ function salesHtml_(req, items, totalQty, hasExcel) {
     '<h1 style="margin:0 0 6px;font:bold 22px Arial,sans-serif;color:' + GREEN + '">' + (items.length ? 'New request for price' : 'New enquiry') + '</h1>' +
     '<p style="margin:0 0 14px">Received ' + now_() + ' from the online catalogue. Reply to this email to answer the customer directly.' +
     (hasExcel ? ' The parts list is attached as an Excel file, with columns for price and lead time.' : '') + '</p>' +
+    (req.link ? '<p style="margin:0 0 14px"><a href="' + esc_(req.link) + '" style="display:inline-block;background:' + GREEN + ';color:#fff;font:bold 14px Arial,sans-serif;text-decoration:none;padding:10px 18px;border-radius:4px">Open request &amp; download Excel</a></p>' : '') +
     detailsTable_(req) +
     (items.length ? '<h2 style="margin:18px 0 4px;font:bold 16px Arial,sans-serif;color:' + GREEN + '">Parts (' + items.length + ' lines, ' + totalQty + ' pcs)</h2>' + partsTable_(items, totalQty) : ''));
 }

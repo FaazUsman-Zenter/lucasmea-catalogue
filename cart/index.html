@@ -167,6 +167,7 @@ footer .bar{height:24px; background:var(--lucas-green);}
 
 <script src="/assets/cart.js"></script>
 <script src="/assets/rfq-excel.js"></script>
+<script src="/assets/rfq-link.js"></script>
 <script>
 (function(){
   'use strict';
@@ -263,7 +264,14 @@ footer .bar{height:24px; background:var(--lucas-green);}
       ? LucasRFQExcel.build(req).then(function(b){ excelBlob = b; return blobToBase64(b); }).catch(function(e){ console.warn('Excel not created', e); return null; })
       : Promise.resolve(null);
 
-    excelStep.then(function(b64){
+    // 2) Link that rebuilds the Excel file for the sales team (works with any email service, no attachment needed)
+    var linkStep = (items.length && window.LucasRFQLink)
+      ? LucasRFQLink.make(req).catch(function(e){ console.warn('Link not created', e); return ''; })
+      : Promise.resolve('');
+    var excelLink = '';
+
+    Promise.all([excelStep, linkStep]).then(function(res){
+      var b64 = res[0]; excelLink = res[1];
       // 2) Main handler (Apps Script): sales email with Excel + customer confirmation
       if (!RFQ_ENDPOINT) return sendBackup();
       return fetch(RFQ_ENDPOINT, {
@@ -273,7 +281,8 @@ footer .bar{height:24px; background:var(--lucas-green);}
           ref: ref, name: req.name, company: req.company, email: req.email, phone: req.phone, country: req.country,
           type: req.type, message: req.message, botcheck: $('botcheck').checked, page: location.href,
           items: items.map(function(it){ return { no: it.no, catalogue: it.catalogue, make: it.make, app: it.app, oe: it.oe, qty: it.qty }; }),
-          excel: b64 ? { name: LucasRFQExcel.fileName(ref), base64: b64 } : null
+          excel: b64 ? { name: LucasRFQExcel.fileName(ref), base64: b64 } : null,
+          link: excelLink
         })
       }).then(function(r){ return r.json(); }).then(function(j){
         if (!j || !j.success) throw new Error(j && j.message || 'Request not accepted');
@@ -300,7 +309,9 @@ footer .bar{height:24px; background:var(--lucas-green);}
         body: JSON.stringify({
           access_key: W3F_KEY, subject: subject, from_name: 'Lucas online catalogue', replyto: v('f-email'),
           botcheck: $('botcheck').checked,
-          reference: ref, name: v('f-name'), company: v('f-company'), email: v('f-email'), phone: v('f-phone'),
+          reference: ref,
+          'Excel parts list': excelLink || '(no parts, general enquiry)',
+          name: v('f-name'), company: v('f-company'), email: v('f-email'), phone: v('f-phone'),
           country: v('f-country'), customer_type: v('f-type'),
           parts_count: items.length + ' lines, ' + totalQty + ' pcs', parts: partsText, message: v('f-msg') || '-'
         })
